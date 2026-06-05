@@ -52,4 +52,9 @@ public class UsuarioRepositoryAdapter implements UsuarioRespositoryPort {
     public Optional<Usuario> obtenerUsuario(Long id) {
         return jpaRepository.findById(id).map(mapper::toDomain);
     }
+
+    @Override
+    public Optional<Usuario> obtenerPorCorreo(Correo correo) {
+        return jpaRepository.findByCorreo(correo.getValor()).map(mapper::toDomain);
+    }
 }

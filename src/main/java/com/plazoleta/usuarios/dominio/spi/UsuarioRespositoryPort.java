@@ -14,4 +14,5 @@ public interface UsuarioRespositoryPort {
     boolean existsByCorreo(Correo correo);
     boolean existsByDocumentoDeIdentidad(Documento documento);
     Optional<Usuario> obtenerUsuario(Long id);
+    Optional<Usuario> obtenerPorCorreo(Correo correo);
 }
