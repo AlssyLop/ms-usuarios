@@ -8,11 +8,9 @@ import com.plazoleta.usuarios.dominio.modelo.Usuario;
 import com.plazoleta.usuarios.dominio.spi.UsuarioRespositoryPort;
 import org.springframework.dao.DuplicateKeyException;
 import com.plazoleta.usuarios.dominio.api.CrearUsuarioPort;
+import java.time.LocalDate;
+import java.time.Period;
 
-/**
- *
- * @author Usuario
- */
 public class CrearUsuario implements CrearUsuarioPort{
 
     private final UsuarioRespositoryPort usuarioRepository;
@@ -23,8 +21,17 @@ public class CrearUsuario implements CrearUsuarioPort{
 
     @Override
     public Usuario crearPropietario(Usuario usuario) {
+        validarMayoriaEdad(usuario);
         validarCorreoDocumento(usuario);
         return usuarioRepository.create(usuario);
+    }
+
+    private void validarMayoriaEdad(Usuario usuario) {
+        LocalDate fechaNac = usuario.getFechaNacimiento().getValor();
+        int edad = Period.between(fechaNac, LocalDate.now()).getYears();
+        if (edad < 18) {
+            throw new IllegalArgumentException("El usuario debe ser mayor de edad (>= 18 anos)");
+        }
     }
 
     private void validarCorreoDocumento(Usuario usuario){
