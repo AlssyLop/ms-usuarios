@@ -11,6 +11,7 @@ import com.plazoleta.usuarios.infrastructure.persistence.repository.IRolJpaRepos
 import com.plazoleta.usuarios.infrastructure.persistence.repository.IUsuarioJpaRepository;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
+import java.util.Optional;
 
 @Repository
 @Transactional
@@ -45,5 +46,10 @@ public class UsuarioRepositoryAdapter implements UsuarioRespositoryPort {
     @Override
     public boolean existsByDocumentoDeIdentidad(Documento documento) {
         return jpaRepository.existsByDocumentoDeIdentidad(documento.getValor());
+    }
+
+    @Override
+    public Optional<Usuario> obtenerUsuario(Long id) {
+        return jpaRepository.findById(id).map(mapper::toDomain);
     }
 }

@@ -23,6 +23,11 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ErrorResponse> handleIllegalArgument(IllegalArgumentException ex) {
+        String message = ex.getMessage();
+        if ("Usuario no encontrado".equals(message)) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ErrorResponse(ex.getMessage(), null));
+        }
         return ResponseEntity.badRequest()
                 .body(new ErrorResponse(ex.getMessage(), null));
     }
