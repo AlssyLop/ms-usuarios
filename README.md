@@ -6,38 +6,35 @@ Microservicio de gestion de usuarios para la plataforma Plaza de Comidas. Implem
 
 - Java 25 + Spring Boot 4.0.6 + Maven (mvnw wrapper)
 - MySQL 8 (JPA con Hibernate, `ddl-auto=validate`)
-- Spring Security + SpringDoc OpenAPI 3.0.2
+- Spring Security + jjwt 0.12.6 + SpringDoc OpenAPI 3.0.2
 - Lombok + MapStruct 1.6.3
 - Pruebas: JUnit 5 + Mockito
 
-## Arquitectura Hexagonal con Vertical Slicing
-
-Cada caso de uso es autocontenido en su propio paquete vertical. Lo compartido entre features vive en `common/`.
+## Arquitectura Hexagonal
 
 ```
-com.plazoleta.user_services/
-  common/                          # compartido entre features
-    domain/
-      model/        Usuario, Rol
-      spi/          IUsuarioRepositoryPort, IRolRepositoryPort
-    application/
-      exception/    ErrorResponse
-    infrastructure/
-      config/       BeanConfiguration
-      persistence/  entity/ mapper/ repository/ adapter/
-      endpoint/
-        handler/    GlobalExceptionHandler
+com.plazoleta.usuarios/
+  dominio/                          # Nucleo del negocio
+    api/            CrearUsuarioPort, ConsultarUsuarioPort
+    exception/      CredencialesInvalidasException
+    modelo/         Usuario + value objects (Correo, Clave, TipoRol, etc.)
+    spi/            UsuarioRespositoryPort, AutenticarUsuarioPort
+    usecase/        CrearUsuario, ConsultarUsuario, AutenticarUsuario
 
-  crear_propietario/               # HU-1
-    domain/
-      api/          ICrearPropietarioUseCase
-      usecase/      CrearPropietarioUseCase
-    application/
-      dto/          CrearPropietarioRequest, CrearPropietarioResponse
-      handler/      CrearPropietarioHandler
-      factory/      UsuarioFactory
-    infrastructure/
-      endpoint/     UsuarioController
+  application/                      # Puertos de entrada
+    dto/            request/ response/
+    exception/      ErrorResponse
+    factory/        UsuarioFactory
+    handle/         UsuarioHandle, ConsultarUsuarioHandle, AutenticarHandle
+
+  infrastructure/                   # Adaptadores
+    config/         BeanConfiguration
+    endpoint/       UsuarioController, AuthController
+    endpoint/handler/  GlobalExceptionHandler
+    entity/         EntidadUsuario, EntidadRol
+    persistence/    adapter/ mapper/ repository/
+    security/       SecurityConfig
+    security/jwt/   JwtTokenProvider, JwtAuthenticationFilter
 ```
 
 ## Base de Datos
@@ -53,20 +50,46 @@ Conexion local: `root/root` en `localhost:3306/plazoleta_usuarios`.
 
 ```bash
 ./mvnw spring-boot:run    # Puerto 8081
-./mvnw clean test         # Pruebas unitarias (9 tests)
+./mvnw clean test         # Pruebas unitarias (13 tests)
 ```
 
 ## Endpoints Implementados
 
-| Metodo | Ruta                   | Descripcion              |
-|--------|------------------------|--------------------------|
-| POST   | `/usuarios/propietario` | Crear cuenta de propietario |
+| Metodo | Ruta                   | Descripcion              | Autenticacion |
+|--------|------------------------|--------------------------|---------------|
+| POST   | `/auth/login`          | Iniciar sesion (publico) | No requiere   |
+| POST   | `/usuarios/propietario` | Crear cuenta de propietario | JWT (Administrador) |
+| GET    | `/usuarios/{id}`       | Consultar usuario por ID | JWT           |
 
 Documentacion OpenAPI disponible en `/swagger-ui.html` y `/v3/api-docs`.
 
+## HU-5: Autenticacion JWT
+
+Inicio de sesion con correo y clave, retorna un token JWT firmado.
+
+### Politicas de expiracion por rol
+
+| Rol | Politica |
+|-----|----------|
+| ADMINISTRADOR / PROPIETARIO | Sliding — 1 hora, se renueva si quedan <10 min |
+| EMPLEADO / CLIENTE | 12 horas, se renueva si pasaron >8 horas desde creacion |
+
+### Respuestas
+
+- **200**: token JWT (`{"token": "..."}`)
+- **401**: credenciales invalidas (`{"mensaje": "Credenciales invalidas"}`)
+
+### Admin por defecto
+
+Creado via `data.sql` al arrancar la aplicacion:
+- **Usuario:** `admin`
+- **Clave:** `admin`
+
+---
+
 ## HU-1: Crear Propietario
 
-Crea un usuario con rol PROPIETARIO. Endpoint publico (sin seguridad JWT en esta version).
+Crea un usuario con rol PROPIETARIO. Endpoint protegido (requiere JWT de Administrador).
 
 ### Validaciones de dominio
 
@@ -85,6 +108,5 @@ Crea un usuario con rol PROPIETARIO. Endpoint publico (sin seguridad JWT en esta
 
 ## Proximas HU (pendientes)
 
-- H5: Autenticacion JWT (`/auth/login`)
 - H6: Propietario crea empleado
 - H8: Cliente crea cuenta
