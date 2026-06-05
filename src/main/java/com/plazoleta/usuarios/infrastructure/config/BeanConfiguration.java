@@ -1,11 +1,13 @@
 package com.plazoleta.usuarios.infrastructure.config;
 
+import com.plazoleta.usuarios.dominio.api.CrearCuentaClientePort;
 import com.plazoleta.usuarios.dominio.api.CrearEmpleadoPort;
 import com.plazoleta.usuarios.dominio.api.CrearUsuarioPort;
 import com.plazoleta.usuarios.dominio.api.ConsultarUsuarioPort;
 import com.plazoleta.usuarios.dominio.spi.AutenticarUsuarioPort;
 import com.plazoleta.usuarios.dominio.spi.UsuarioRespositoryPort;
 import com.plazoleta.usuarios.dominio.usecase.AutenticarUsuario;
+import com.plazoleta.usuarios.dominio.usecase.CrearCuentaCliente;
 import com.plazoleta.usuarios.dominio.usecase.CrearEmpleado;
 import com.plazoleta.usuarios.dominio.usecase.CrearUsuario;
 import com.plazoleta.usuarios.dominio.usecase.ConsultarUsuario;
@@ -25,6 +27,11 @@ public class BeanConfiguration {
     @Bean
     public CrearEmpleadoPort crearEmpleadoPort(UsuarioRespositoryPort usuarioRepository) {
         return new CrearEmpleado(usuarioRepository);
+    }
+
+    @Bean
+    public CrearCuentaClientePort crearCuentaClientePort(UsuarioRespositoryPort usuarioRepository) {
+        return new CrearCuentaCliente(usuarioRepository);
     }
 
     @Bean

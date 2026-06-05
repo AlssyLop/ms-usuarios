@@ -4,6 +4,8 @@
  */
 package com.plazoleta.usuarios.infrastructure.endpoint;
 
+import com.plazoleta.usuarios.application.dto.request.ClientePost;
+import com.plazoleta.usuarios.application.dto.response.ClienteResponse;
 import com.plazoleta.usuarios.application.dto.request.EmpleadoPost;
 import com.plazoleta.usuarios.application.dto.response.EmpleadoResponse;
 import com.plazoleta.usuarios.application.handle.UsuarioHandle;
@@ -64,6 +66,17 @@ public class UsuarioController {
     public ResponseEntity<UsuarioConsultaResponse> consultarUsuario(@PathVariable Long id) {
         UsuarioConsultaResponse response = consultarUsuarioHandle.consultarPorId(id);
         return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/cliente")
+    @Operation(summary = "Crear cuenta de cliente",
+            description = "Crea una cuenta con rol CLIENTE. Endpoint publico, no requiere autenticacion.")
+    @ApiResponse(responseCode = "201", description = "Cliente creado exitosamente",
+            content = @Content(schema = @Schema(implementation = ClienteResponse.class)))
+    @ApiResponse(responseCode = "400", description = "Error de validacion")
+    public ResponseEntity<ClienteResponse> crearCliente(@RequestBody ClientePost request) {
+        ClienteResponse response = usuarioHandle.crearCliente(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @PostMapping("/empleado")

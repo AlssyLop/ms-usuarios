@@ -4,8 +4,11 @@
  */
 package com.plazoleta.usuarios.application.handle;
 
+import com.plazoleta.usuarios.application.dto.request.ClientePost;
+import com.plazoleta.usuarios.application.dto.response.ClienteResponse;
 import com.plazoleta.usuarios.application.dto.request.EmpleadoPost;
 import com.plazoleta.usuarios.application.dto.response.EmpleadoResponse;
+import com.plazoleta.usuarios.dominio.api.CrearCuentaClientePort;
 import com.plazoleta.usuarios.dominio.api.CrearEmpleadoPort;
 import com.plazoleta.usuarios.dominio.modelo.Usuario;
 import com.plazoleta.usuarios.application.factory.UsuarioFactory;
@@ -27,17 +30,20 @@ import org.springframework.transaction.annotation.Transactional;
 public class UsuarioHandle {
     private final CrearUsuarioPort crearUsuario;
     private final CrearEmpleadoPort crearEmpleado;
+    private final CrearCuentaClientePort crearCuentaCliente;
     private final UsuarioFactory usuarioFactory;
     private final PasswordEncoder passwordEncoder;
     private final RestauranteRestClienteAdapter restauranteClient;
 
     public UsuarioHandle(CrearUsuarioPort crearPropietarioUseCase,
                          CrearEmpleadoPort crearEmpleado,
+                         CrearCuentaClientePort crearCuentaCliente,
                          UsuarioFactory usuario,
                          PasswordEncoder passwordEncoder,
                          RestauranteRestClienteAdapter restauranteClient) {
         this.crearUsuario = crearPropietarioUseCase;
         this.crearEmpleado = crearEmpleado;
+        this.crearCuentaCliente = crearCuentaCliente;
         this.usuarioFactory = usuario;
         this.passwordEncoder = passwordEncoder;
         this.restauranteClient = restauranteClient;
@@ -59,6 +65,13 @@ public class UsuarioHandle {
                 creado.getCorreo().getValor(),
                 creado.getRol().name()
         );
+    }
+
+    public ClienteResponse crearCliente(ClientePost request) {
+        Usuario usuario = usuarioFactory.sendToDomainCliente(request);
+        usuario.getClave().setValor(passwordEncoder.encode(usuario.getClave().getValor()));
+        crearCuentaCliente.crearCliente(usuario);
+        return new ClienteResponse("Cliente creado exitosamente");
     }
 
     public EmpleadoResponse crearEmpleado(EmpleadoPost request, String token) {
