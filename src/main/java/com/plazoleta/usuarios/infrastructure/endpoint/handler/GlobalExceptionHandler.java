@@ -2,7 +2,9 @@ package com.plazoleta.usuarios.infrastructure.endpoint.handler;
 
 import com.plazoleta.usuarios.application.exception.ErrorResponse;
 import com.plazoleta.usuarios.dominio.exception.CredencialesInvalidasException;
+import com.plazoleta.usuarios.dominio.exception.ValidacionException;
 import java.util.List;
+import java.util.Map;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -37,6 +39,12 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleDuplicateKey(DuplicateKeyException ex) {
         return ResponseEntity.status(HttpStatus.CONFLICT)
                 .body(new ErrorResponse(ex.getMessage(), null));
+    }
+
+    @ExceptionHandler(ValidacionException.class)
+    public ResponseEntity<Map<String, String>> handleValidacion(ValidacionException ex) {
+        return ResponseEntity.badRequest()
+                .body(Map.of(ex.getCampo(), ex.getMessage()));
     }
 
     @ExceptionHandler(CredencialesInvalidasException.class)

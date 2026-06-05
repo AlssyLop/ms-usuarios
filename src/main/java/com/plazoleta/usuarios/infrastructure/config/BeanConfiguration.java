@@ -1,10 +1,12 @@
 package com.plazoleta.usuarios.infrastructure.config;
 
+import com.plazoleta.usuarios.dominio.api.CrearEmpleadoPort;
 import com.plazoleta.usuarios.dominio.api.CrearUsuarioPort;
 import com.plazoleta.usuarios.dominio.api.ConsultarUsuarioPort;
 import com.plazoleta.usuarios.dominio.spi.AutenticarUsuarioPort;
 import com.plazoleta.usuarios.dominio.spi.UsuarioRespositoryPort;
 import com.plazoleta.usuarios.dominio.usecase.AutenticarUsuario;
+import com.plazoleta.usuarios.dominio.usecase.CrearEmpleado;
 import com.plazoleta.usuarios.dominio.usecase.CrearUsuario;
 import com.plazoleta.usuarios.dominio.usecase.ConsultarUsuario;
 import org.springframework.context.annotation.Bean;
@@ -18,6 +20,11 @@ public class BeanConfiguration {
     @Bean
     public CrearUsuarioPort crearUsuarioPort(UsuarioRespositoryPort usuarioRepository) {
         return new CrearUsuario(usuarioRepository);
+    }
+
+    @Bean
+    public CrearEmpleadoPort crearEmpleadoPort(UsuarioRespositoryPort usuarioRepository) {
+        return new CrearEmpleado(usuarioRepository);
     }
 
     @Bean
