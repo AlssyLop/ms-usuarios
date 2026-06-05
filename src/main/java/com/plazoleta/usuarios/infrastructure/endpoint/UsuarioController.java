@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -73,8 +74,10 @@ public class UsuarioController {
             content = @Content(schema = @Schema(implementation = EmpleadoResponse.class)))
     @ApiResponse(responseCode = "400", description = "Error de validacion")
     @ApiResponse(responseCode = "401", description = "No autorizado")
-    public ResponseEntity<EmpleadoResponse> crearEmpleado(@RequestBody EmpleadoPost request) {
-        EmpleadoResponse response = usuarioHandle.crearEmpleado(request);
+    public ResponseEntity<EmpleadoResponse> crearEmpleado(
+            @RequestBody EmpleadoPost request,
+            @RequestHeader("Authorization") String token) {
+        EmpleadoResponse response = usuarioHandle.crearEmpleado(request, token);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 }

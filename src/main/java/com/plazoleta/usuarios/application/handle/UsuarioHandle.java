@@ -9,6 +9,7 @@ import com.plazoleta.usuarios.application.dto.response.EmpleadoResponse;
 import com.plazoleta.usuarios.dominio.api.CrearEmpleadoPort;
 import com.plazoleta.usuarios.dominio.modelo.Usuario;
 import com.plazoleta.usuarios.application.factory.UsuarioFactory;
+import com.plazoleta.usuarios.infrastructure.restaurante.RestauranteRestClienteAdapter;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import com.plazoleta.usuarios.application.dto.request.UsuarioPost;
@@ -28,15 +29,18 @@ public class UsuarioHandle {
     private final CrearEmpleadoPort crearEmpleado;
     private final UsuarioFactory usuarioFactory;
     private final PasswordEncoder passwordEncoder;
+    private final RestauranteRestClienteAdapter restauranteClient;
 
     public UsuarioHandle(CrearUsuarioPort crearPropietarioUseCase,
                          CrearEmpleadoPort crearEmpleado,
                          UsuarioFactory usuario,
-                         PasswordEncoder passwordEncoder) {
+                         PasswordEncoder passwordEncoder,
+                         RestauranteRestClienteAdapter restauranteClient) {
         this.crearUsuario = crearPropietarioUseCase;
         this.crearEmpleado = crearEmpleado;
         this.usuarioFactory = usuario;
         this.passwordEncoder = passwordEncoder;
+        this.restauranteClient = restauranteClient;
     }
 
     public UsuarioCreado crearPropietario(UsuarioPost request) {
@@ -57,14 +61,15 @@ public class UsuarioHandle {
         );
     }
 
-    public EmpleadoResponse crearEmpleado(EmpleadoPost request) {
+    public EmpleadoResponse crearEmpleado(EmpleadoPost request, String token) {
         Long idPropietario = (Long) SecurityContextHolder.getContext()
                 .getAuthentication().getPrincipal();
 
         Usuario usuario = usuarioFactory.sendToDomainEmpleado(request);
         usuario.getClave().setValor(passwordEncoder.encode(usuario.getClave().getValor()));
 
-        crearEmpleado.crearEmpleado(usuario, idPropietario);
+        Usuario creado = crearEmpleado.crearEmpleado(usuario, idPropietario);
+        restauranteClient.asociarEmpleado(creado.getId(), request.getIdRol().longValue(), token);
 
         return new EmpleadoResponse("Empleado creado exitosamente");
     }
