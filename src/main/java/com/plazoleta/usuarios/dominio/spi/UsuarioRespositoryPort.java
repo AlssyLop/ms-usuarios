@@ -7,13 +7,11 @@ package com.plazoleta.usuarios.dominio.spi;
 import com.plazoleta.usuarios.dominio.modelo.Usuario;
 import com.plazoleta.usuarios.dominio.modelo.value.Correo;
 import com.plazoleta.usuarios.dominio.modelo.value.Documento;
+import java.util.Optional;
 
-/**
- *
- * @author Usuario
- */
 public interface UsuarioRespositoryPort {
     Usuario create(Usuario usuario);
     boolean existsByCorreo(Correo correo);
     boolean existsByDocumentoDeIdentidad(Documento documento);
+    Optional<Usuario> obtenerUsuario(Long id);
 }
