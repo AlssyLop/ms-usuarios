@@ -4,6 +4,8 @@
  */
 package com.plazoleta.usuarios.infrastructure.endpoint;
 
+import com.plazoleta.usuarios.application.dto.request.EmpleadoPost;
+import com.plazoleta.usuarios.application.dto.response.EmpleadoResponse;
 import com.plazoleta.usuarios.application.handle.UsuarioHandle;
 import com.plazoleta.usuarios.application.handle.ConsultarUsuarioHandle;
 import com.plazoleta.usuarios.application.dto.response.UsuarioCreado;
@@ -18,6 +20,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -60,5 +63,18 @@ public class UsuarioController {
     public ResponseEntity<UsuarioConsultaResponse> consultarUsuario(@PathVariable Long id) {
         UsuarioConsultaResponse response = consultarUsuarioHandle.consultarPorId(id);
         return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/empleado")
+    @PreAuthorize("hasRole('PROPIETARIO')")
+    @Operation(summary = "Crear cuenta de empleado",
+            description = "Crea una cuenta con rol EMPLEADO. Requiere autenticacion como PROPIETARIO.")
+    @ApiResponse(responseCode = "201", description = "Empleado creado exitosamente",
+            content = @Content(schema = @Schema(implementation = EmpleadoResponse.class)))
+    @ApiResponse(responseCode = "400", description = "Error de validacion")
+    @ApiResponse(responseCode = "401", description = "No autorizado")
+    public ResponseEntity<EmpleadoResponse> crearEmpleado(@RequestBody EmpleadoPost request) {
+        EmpleadoResponse response = usuarioHandle.crearEmpleado(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 }

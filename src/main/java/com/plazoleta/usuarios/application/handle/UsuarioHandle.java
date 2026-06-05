@@ -4,8 +4,12 @@
  */
 package com.plazoleta.usuarios.application.handle;
 
+import com.plazoleta.usuarios.application.dto.request.EmpleadoPost;
+import com.plazoleta.usuarios.application.dto.response.EmpleadoResponse;
+import com.plazoleta.usuarios.dominio.api.CrearEmpleadoPort;
 import com.plazoleta.usuarios.dominio.modelo.Usuario;
 import com.plazoleta.usuarios.application.factory.UsuarioFactory;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import com.plazoleta.usuarios.application.dto.request.UsuarioPost;
 import com.plazoleta.usuarios.application.dto.response.UsuarioCreado;
@@ -21,13 +25,16 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class UsuarioHandle {
     private final CrearUsuarioPort crearUsuario;
+    private final CrearEmpleadoPort crearEmpleado;
     private final UsuarioFactory usuarioFactory;
     private final PasswordEncoder passwordEncoder;
 
     public UsuarioHandle(CrearUsuarioPort crearPropietarioUseCase,
-                                   UsuarioFactory usuario,
-                                   PasswordEncoder passwordEncoder) {
+                         CrearEmpleadoPort crearEmpleado,
+                         UsuarioFactory usuario,
+                         PasswordEncoder passwordEncoder) {
         this.crearUsuario = crearPropietarioUseCase;
+        this.crearEmpleado = crearEmpleado;
         this.usuarioFactory = usuario;
         this.passwordEncoder = passwordEncoder;
     }
@@ -48,5 +55,17 @@ public class UsuarioHandle {
                 creado.getCorreo().getValor(),
                 creado.getRol().name()
         );
+    }
+
+    public EmpleadoResponse crearEmpleado(EmpleadoPost request) {
+        Long idPropietario = (Long) SecurityContextHolder.getContext()
+                .getAuthentication().getPrincipal();
+
+        Usuario usuario = usuarioFactory.sendToDomainEmpleado(request);
+        usuario.getClave().setValor(passwordEncoder.encode(usuario.getClave().getValor()));
+
+        crearEmpleado.crearEmpleado(usuario, idPropietario);
+
+        return new EmpleadoResponse("Empleado creado exitosamente");
     }
 }
