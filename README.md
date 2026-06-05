@@ -35,6 +35,7 @@ com.plazoleta.usuarios/
     persistence/    adapter/ mapper/ repository/
     security/       SecurityConfig
     security/jwt/   JwtTokenProvider, JwtAuthenticationFilter
+    restaurante/    RestauranteRestClienteAdapter (comunicacion con ms-restaurantes)
 ```
 
 ## Base de Datos
@@ -90,7 +91,7 @@ Creado via `data.sql` al arrancar la aplicacion:
 
 ## HU-6: Crear Empleado
 
-Crea un usuario con rol EMPLEADO. Endpoint protegido (requiere JWT de Propietario autenticado). El empleado se asocia automaticamente al restaurante del propietario (vinculacion pendiente de implementar via ms-restaurantes).
+Crea un usuario con rol EMPLEADO. Endpoint protegido (requiere JWT de Propietario autenticado). El empleado se asocia automaticamente al restaurante del propietario mediante una llamada RestTemplate a `POST /restaurantes/empleados` de ms-restaurantes, forwardeando el token JWT del propietario autenticado.
 
 ### Validaciones de dominio
 
