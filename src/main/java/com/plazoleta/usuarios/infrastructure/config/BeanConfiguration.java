@@ -2,7 +2,9 @@ package com.plazoleta.usuarios.infrastructure.config;
 
 import com.plazoleta.usuarios.dominio.api.CrearUsuarioPort;
 import com.plazoleta.usuarios.dominio.api.ConsultarUsuarioPort;
+import com.plazoleta.usuarios.dominio.spi.AutenticarUsuarioPort;
 import com.plazoleta.usuarios.dominio.spi.UsuarioRespositoryPort;
+import com.plazoleta.usuarios.dominio.usecase.AutenticarUsuario;
 import com.plazoleta.usuarios.dominio.usecase.CrearUsuario;
 import com.plazoleta.usuarios.dominio.usecase.ConsultarUsuario;
 import org.springframework.context.annotation.Bean;
@@ -21,6 +23,12 @@ public class BeanConfiguration {
     @Bean
     public ConsultarUsuarioPort consultarUsuarioPort(UsuarioRespositoryPort usuarioRepository) {
         return new ConsultarUsuario(usuarioRepository);
+    }
+
+    @Bean
+    public AutenticarUsuarioPort autenticarUsuarioPort(UsuarioRespositoryPort usuarioRepository,
+                                                       PasswordEncoder passwordEncoder) {
+        return new AutenticarUsuario(usuarioRepository, passwordEncoder);
     }
 
     @Bean
