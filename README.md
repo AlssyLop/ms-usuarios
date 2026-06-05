@@ -51,7 +51,7 @@ Conexion local: `root/root` en `localhost:3306/plazoleta_usuarios`.
 
 ```bash
 ./mvnw spring-boot:run    # Puerto 8081
-./mvnw clean test         # Pruebas unitarias (18 tests)
+./mvnw clean test         # Pruebas unitarias (23 tests)
 ```
 
 ## Endpoints Implementados
@@ -59,6 +59,7 @@ Conexion local: `root/root` en `localhost:3306/plazoleta_usuarios`.
 | Metodo | Ruta                   | Descripcion              | Autenticacion |
 |--------|------------------------|--------------------------|---------------|
 | POST   | `/auth/login`          | Iniciar sesion (publico) | No requiere   |
+| POST   | `/usuarios/cliente`    | Crear cuenta de cliente  | No requiere   |
 | POST   | `/usuarios/propietario` | Crear cuenta de propietario | JWT (Administrador) |
 | POST   | `/usuarios/empleado`   | Crear cuenta de empleado    | JWT (Propietario) |
 | GET    | `/usuarios/{id}`       | Consultar usuario por ID | JWT           |
@@ -145,6 +146,34 @@ Crea un usuario con rol PROPIETARIO. Endpoint protegido (requiere JWT de Adminis
 - **400**: errores de validacion (lista de errores)
 - **409**: conflicto (correo o documento duplicado)
 
-## Proximas HU (pendientes)
+## HU-8: Crear Cliente
 
-- H8: Cliente crea cuenta
+Endpoint público `POST /usuarios/cliente` (sin autenticación). El cliente se registra por sí mismo y se le asigna automáticamente el rol **CLIENTE**.
+
+### Validaciones de dominio (secuenciales)
+
+- **Nombre**: requerido, solo letras (2-100 caracteres)
+- **Apellido**: requerido, solo letras (2-100 caracteres)
+- **Documento**: solo numérico, único en el sistema
+- **Celular**: comienza con `+`, máximo 13 caracteres
+- **Correo**: formato válido, único en el sistema
+- **Clave**: mínimo 8 caracteres, almacenada con bcrypt
+- Las validaciones se ejecutan secuencialmente — el primer error detiene el proceso y retorna `{campo: mensaje}`
+
+### Request body
+
+```json
+{
+  "nombre": "string",
+  "apellido": "string",
+  "documentoDeIdentidad": "string",
+  "celular": "string",
+  "correo": "string",
+  "clave": "string"
+}
+```
+
+### Respuestas
+
+- **201**: `{"mensaje": "Cliente creado exitosamente"}`
+- **400**: `{campo: "mensaje de error"}` (primer campo que falla)
