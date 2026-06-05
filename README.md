@@ -15,14 +15,14 @@ Microservicio de gestion de usuarios para la plataforma Plaza de Comidas. Implem
 ```
 com.plazoleta.usuarios/
   dominio/                          # Nucleo del negocio
-    api/            CrearUsuarioPort, ConsultarUsuarioPort
-    exception/      CredencialesInvalidasException
+    api/            CrearUsuarioPort, CrearEmpleadoPort, ConsultarUsuarioPort
+    exception/      CredencialesInvalidasException, ValidacionException
     modelo/         Usuario + value objects (Correo, Clave, TipoRol, etc.)
     spi/            UsuarioRespositoryPort, AutenticarUsuarioPort
-    usecase/        CrearUsuario, ConsultarUsuario, AutenticarUsuario
+    usecase/        CrearUsuario, CrearEmpleado, ConsultarUsuario, AutenticarUsuario
 
   application/                      # Puertos de entrada
-    dto/            request/ response/
+    dto/            request/ (UsuarioPost, EmpleadoPost) response/ (UsuarioCreado, EmpleadoResponse)
     exception/      ErrorResponse
     factory/        UsuarioFactory
     handle/         UsuarioHandle, ConsultarUsuarioHandle, AutenticarHandle
@@ -50,7 +50,7 @@ Conexion local: `root/root` en `localhost:3306/plazoleta_usuarios`.
 
 ```bash
 ./mvnw spring-boot:run    # Puerto 8081
-./mvnw clean test         # Pruebas unitarias (13 tests)
+./mvnw clean test         # Pruebas unitarias (18 tests)
 ```
 
 ## Endpoints Implementados
@@ -59,6 +59,7 @@ Conexion local: `root/root` en `localhost:3306/plazoleta_usuarios`.
 |--------|------------------------|--------------------------|---------------|
 | POST   | `/auth/login`          | Iniciar sesion (publico) | No requiere   |
 | POST   | `/usuarios/propietario` | Crear cuenta de propietario | JWT (Administrador) |
+| POST   | `/usuarios/empleado`   | Crear cuenta de empleado    | JWT (Propietario) |
 | GET    | `/usuarios/{id}`       | Consultar usuario por ID | JWT           |
 
 Documentacion OpenAPI disponible en `/swagger-ui.html` y `/v3/api-docs`.
@@ -87,6 +88,43 @@ Creado via `data.sql` al arrancar la aplicacion:
 
 ---
 
+## HU-6: Crear Empleado
+
+Crea un usuario con rol EMPLEADO. Endpoint protegido (requiere JWT de Propietario autenticado). El empleado se asocia automaticamente al restaurante del propietario (vinculacion pendiente de implementar via ms-restaurantes).
+
+### Validaciones de dominio
+
+- **Nombre**: requerido, solo letras (2-100 caracteres)
+- **Apellido**: requerido, solo letras (2-100 caracteres)
+- **Documento**: solo numerico, unico en el sistema
+- **Celular**: comienza con `+`, maximo 13 caracteres
+- **Correo**: formato valido, unico en el sistema
+- **Clave**: minimo 8 caracteres
+- **idRol**: requerido, debe ser un numero positivo (tipo de empleado: Chef, Mesero, Domiciliario)
+- Las validaciones se ejecutan de forma secuencial — el primer error detiene el proceso y retorna `{campo: mensaje}`
+
+### Request body
+
+```json
+{
+  "nombre": "string",
+  "apellido": "string",
+  "documentoDeIdentidad": "string",
+  "celular": "string",
+  "correo": "string",
+  "idRol": 1,
+  "clave": "string"
+}
+```
+
+### Respuestas
+
+- **201**: `{"mensaje": "Empleado creado exitosamente"}`
+- **400**: `{campo: "mensaje de error"}` (primer campo que falla)
+- **401**: credenciales invalidas (sin cuerpo)
+
+---
+
 ## HU-1: Crear Propietario
 
 Crea un usuario con rol PROPIETARIO. Endpoint protegido (requiere JWT de Administrador).
@@ -108,5 +146,4 @@ Crea un usuario con rol PROPIETARIO. Endpoint protegido (requiere JWT de Adminis
 
 ## Proximas HU (pendientes)
 
-- H6: Propietario crea empleado
 - H8: Cliente crea cuenta
