@@ -19,17 +19,38 @@ import org.springframework.stereotype.Component;
 @Component
 public class UsuarioFactory {
     public Usuario sendToDomainPropietario(UsuarioPost usuario) {
+        Nombre nombre;
+        Apellido apellido;
+        Documento documento;
+        Celular celular;
+        FechaNacimiento fechaNacimiento;
+        Correo correo;
+        Clave clave;
+
+        try { nombre = new Nombre(usuario.getNombre()); }
+        catch (IllegalArgumentException e) { throw new ValidacionException("nombre", e.getMessage()); }
+
+        try { apellido = new Apellido(usuario.getApellido()); }
+        catch (IllegalArgumentException e) { throw new ValidacionException("apellido", e.getMessage()); }
+
+        try { documento = new Documento(usuario.getDocumentoDeIdentidad()); }
+        catch (IllegalArgumentException e) { throw new ValidacionException("documentoDeIdentidad", e.getMessage()); }
+
+        try { celular = new Celular(usuario.getCelular()); }
+        catch (IllegalArgumentException e) { throw new ValidacionException("celular", e.getMessage()); }
+
+        try { fechaNacimiento = new FechaNacimiento(usuario.getFechaNacimiento()); }
+        catch (IllegalArgumentException e) { throw new ValidacionException("fechaNacimiento", e.getMessage()); }
+
+        try { correo = new Correo(usuario.getCorreo()); }
+        catch (IllegalArgumentException e) { throw new ValidacionException("correo", e.getMessage()); }
+
+        try { clave = new Clave(usuario.getClave()); }
+        catch (IllegalArgumentException e) { throw new ValidacionException("clave", e.getMessage()); }
+
         return new Usuario(
-                null,
-                usuario.getNombre(),
-                usuario.getApellido(),
-                usuario.getDocumentoDeIdentidad(),
-                usuario.getCelular(),
-                usuario.getFechaNacimiento(),
-                usuario.getCorreo(),
-                usuario.getClave(),
-                TipoRol.PROPIETARIO,
-                true
+                null, nombre, apellido, documento, celular,
+                fechaNacimiento, correo, clave, TipoRol.PROPIETARIO, true
         );
     }
 

@@ -1,41 +1,34 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.plazoleta.usuarios.application.dto.request;
 
-import com.plazoleta.usuarios.dominio.modelo.value.Apellido;
-import com.plazoleta.usuarios.dominio.modelo.value.Celular;
-import com.plazoleta.usuarios.dominio.modelo.value.Clave;
-import com.plazoleta.usuarios.dominio.modelo.value.Correo;
-import com.plazoleta.usuarios.dominio.modelo.value.Documento;
-import com.plazoleta.usuarios.dominio.modelo.value.FechaNacimiento;
-import com.plazoleta.usuarios.dominio.modelo.value.Nombre;
+import io.swagger.v3.oas.annotations.media.Schema;
 
-/**
- *
- * @author Usuario
- */
 public class UsuarioPost {
-    
-    private Nombre nombre;
 
-    private Apellido apellido;
+    @Schema(description = "Nombre del usuario", example = "Alcibiades")
+    private String nombre;
 
-    private Documento documentoDeIdentidad;
+    @Schema(description = "Apellido del usuario", example = "Lopez")
+    private String apellido;
 
-    private Celular celular;
+    @Schema(description = "Documento de identidad (solo numerico)", example = "12345678")
+    private String documentoDeIdentidad;
 
-    private FechaNacimiento fechaNacimiento;
+    @Schema(description = "Celular con formato internacional", example = "+573054433893")
+    private String celular;
 
-    private Correo correo;
+    @Schema(description = "Fecha de nacimiento en formato dd/MM/yyyy", example = "21/05/2004")
+    private String fechaNacimiento;
 
-    private Clave clave;
+    @Schema(description = "Correo electronico", example = "alcibiades@gmail.com")
+    private String correo;
+
+    @Schema(description = "Clave (minimo 8 caracteres)", example = "12345678")
+    private String clave;
 
     public UsuarioPost() {}
 
-    public UsuarioPost(Nombre nombre, Apellido apellido, Documento documentoDeIdentidad,
-                                   Celular celular, FechaNacimiento fechaNacimiento, Correo correo, Clave clave) {
+    public UsuarioPost(String nombre, String apellido, String documentoDeIdentidad,
+                       String celular, String fechaNacimiento, String correo, String clave) {
         this.nombre = nombre;
         this.apellido = apellido;
         this.documentoDeIdentidad = documentoDeIdentidad;
@@ -45,61 +38,24 @@ public class UsuarioPost {
         this.clave = clave;
     }
 
-    public Nombre getNombre() {
-        return nombre;
-    }
+    public String getNombre() { return nombre; }
+    public void setNombre(String nombre) { this.nombre = nombre; }
 
-    public void setNombre(Nombre nombre) {
-        this.nombre = nombre;
-    }
+    public String getApellido() { return apellido; }
+    public void setApellido(String apellido) { this.apellido = apellido; }
 
-    public Apellido getApellido() {
-        return apellido;
-    }
+    public String getDocumentoDeIdentidad() { return documentoDeIdentidad; }
+    public void setDocumentoDeIdentidad(String documentoDeIdentidad) { this.documentoDeIdentidad = documentoDeIdentidad; }
 
-    public void setApellido(Apellido apellido) {
-        this.apellido = apellido;
-    }
+    public String getCelular() { return celular; }
+    public void setCelular(String celular) { this.celular = celular; }
 
-    public Documento getDocumentoDeIdentidad() {
-        return documentoDeIdentidad;
-    }
+    public String getFechaNacimiento() { return fechaNacimiento; }
+    public void setFechaNacimiento(String fechaNacimiento) { this.fechaNacimiento = fechaNacimiento; }
 
-    public void setDocumentoDeIdentidad(Documento documentoDeIdentidad) {
-        this.documentoDeIdentidad = documentoDeIdentidad;
-    }
+    public String getCorreo() { return correo; }
+    public void setCorreo(String correo) { this.correo = correo; }
 
-    public Celular getCelular() {
-        return celular;
-    }
-
-    public void setCelular(Celular celular) {
-        this.celular = celular;
-    }
-
-    public FechaNacimiento getFechaNacimiento() {
-        return fechaNacimiento;
-    }
-
-    public void setFechaNacimiento(FechaNacimiento fechaNacimiento) {
-        this.fechaNacimiento = fechaNacimiento;
-    }
-
-    public Correo getCorreo() {
-        return correo;
-    }
-
-    public void setCorreo(Correo correo) {
-        this.correo = correo;
-    }
-
-    public Clave getClave() {
-        return clave;
-    }
-
-    public void setClave(Clave clave) {
-        this.clave = clave;
-    }
-
-    
+    public String getClave() { return clave; }
+    public void setClave(String clave) { this.clave = clave; }
 }

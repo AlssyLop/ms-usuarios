@@ -19,21 +19,29 @@ public class FechaNacimiento {
     private static final DateTimeFormatter FORMATEADOR = DateTimeFormatter
             .ofPattern("dd/MM/uuuu")
             .withResolverStyle(ResolverStyle.STRICT);
+    private static final DateTimeFormatter FORMATEADOR_ISO = DateTimeFormatter
+            .ofPattern("uuuu-MM-dd")
+            .withResolverStyle(ResolverStyle.STRICT);
 
     public FechaNacimiento(String valor) {
         this.valor = valor;
         this.fecha = this.validarFechaNacimiento();
     }
-    
+
     private LocalDate validarFechaNacimiento(){
-        if (valor == null || valor.length() == 0) {
-            throw new IllegalArgumentException("La fecha de nacimiento es requerido");
+        if (valor == null || valor.isEmpty()) {
+            throw new IllegalArgumentException("La fecha de nacimiento es requerida");
         }
-        
+
+        String trimmed = valor.trim();
         try {
-            return LocalDate.parse(valor.trim(), FORMATEADOR);
-        } catch (DateTimeParseException e) {
-            throw new IllegalArgumentException("La fecha es inválida. Debe tener el formato dd/MM/yyyy.");
+            return LocalDate.parse(trimmed, FORMATEADOR);
+        } catch (DateTimeParseException e1) {
+            try {
+                return LocalDate.parse(trimmed, FORMATEADOR_ISO);
+            } catch (DateTimeParseException e2) {
+                throw new IllegalArgumentException("La fecha es invalida. Use dd/MM/yyyy o yyyy-MM-dd.");
+            }
         }
     }
 
