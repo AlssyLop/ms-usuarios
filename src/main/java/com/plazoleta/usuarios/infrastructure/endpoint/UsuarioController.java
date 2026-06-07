@@ -13,8 +13,10 @@ import com.plazoleta.usuarios.application.handle.ConsultarUsuarioHandle;
 import com.plazoleta.usuarios.application.dto.response.UsuarioCreado;
 import com.plazoleta.usuarios.application.dto.response.UsuarioConsultaResponse;
 import com.plazoleta.usuarios.application.dto.request.UsuarioPost;
+import com.plazoleta.usuarios.application.exception.ErrorResponse;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -45,12 +47,15 @@ public class UsuarioController {
     }
     
     @PostMapping("/propietario")
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
     @Operation(summary = "Crear cuenta de propietario",
             description = "Crea una cuenta con rol PROPIETARIO. Requiere autenticacion como ADMINISTRADOR.")
     @ApiResponse(responseCode = "201", description = "Propietario creado exitosamente",
             content = @Content(schema = @Schema(implementation = UsuarioCreado.class)))
-    @ApiResponse(responseCode = "400", description = "Error de validacion")
-    @ApiResponse(responseCode = "409", description = "Conflicto (correo o documento duplicado)")
+    @ApiResponse(responseCode = "400", description = "Error de validacion",
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    @ApiResponse(responseCode = "409", description = "Conflicto (correo o documento duplicado)",
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     public ResponseEntity<UsuarioCreado> crearPropietario(
             @Valid @RequestBody UsuarioPost request) {
         UsuarioCreado response = usuarioHandle.crearPropietario(request);
@@ -58,8 +63,9 @@ public class UsuarioController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
     @Operation(summary = "Consultar usuario por ID",
-            description = "Retorna los datos basicos de un usuario por su ID.")
+            description = "Retorna los datos basicos de un usuario por su ID. Requiere rol ADMINISTRADOR.")
     @ApiResponse(responseCode = "200", description = "Usuario encontrado",
             content = @Content(schema = @Schema(implementation = UsuarioConsultaResponse.class)))
     @ApiResponse(responseCode = "404", description = "Usuario no encontrado")
@@ -73,7 +79,8 @@ public class UsuarioController {
             description = "Crea una cuenta con rol CLIENTE. Endpoint publico, no requiere autenticacion.")
     @ApiResponse(responseCode = "201", description = "Cliente creado exitosamente",
             content = @Content(schema = @Schema(implementation = ClienteResponse.class)))
-    @ApiResponse(responseCode = "400", description = "Error de validacion")
+    @ApiResponse(responseCode = "400", description = "Error de validacion",
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     public ResponseEntity<ClienteResponse> crearCliente(@RequestBody ClientePost request) {
         ClienteResponse response = usuarioHandle.crearCliente(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
@@ -85,11 +92,13 @@ public class UsuarioController {
             description = "Crea una cuenta con rol EMPLEADO. Requiere autenticacion como PROPIETARIO.")
     @ApiResponse(responseCode = "201", description = "Empleado creado exitosamente",
             content = @Content(schema = @Schema(implementation = EmpleadoResponse.class)))
-    @ApiResponse(responseCode = "400", description = "Error de validacion")
-    @ApiResponse(responseCode = "401", description = "No autorizado")
+    @ApiResponse(responseCode = "400", description = "Error de validacion",
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    @ApiResponse(responseCode = "401", description = "No autorizado",
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     public ResponseEntity<EmpleadoResponse> crearEmpleado(
             @RequestBody EmpleadoPost request,
-            @RequestHeader("Authorization") String token) {
+            @Parameter(hidden = true) @RequestHeader("Authorization") String token) {
         EmpleadoResponse response = usuarioHandle.crearEmpleado(request, token);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
