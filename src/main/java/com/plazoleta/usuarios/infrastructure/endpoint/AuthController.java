@@ -2,6 +2,7 @@ package com.plazoleta.usuarios.infrastructure.endpoint;
 
 import com.plazoleta.usuarios.application.dto.request.LoginRequest;
 import com.plazoleta.usuarios.application.dto.response.LoginResponse;
+import com.plazoleta.usuarios.application.exception.ErrorResponse;
 import com.plazoleta.usuarios.application.handle.AutenticarHandle;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -30,7 +31,8 @@ public class AuthController {
             description = "Autentica un usuario por correo y clave, retorna un token JWT de acceso.")
     @ApiResponse(responseCode = "200", description = "Inicio de sesion exitoso",
             content = @Content(schema = @Schema(implementation = LoginResponse.class)))
-    @ApiResponse(responseCode = "401", description = "Credenciales invalidas")
+    @ApiResponse(responseCode = "401", description = "Credenciales invalidas",
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request) {
         LoginResponse response = autenticarHandle.login(request);
         return ResponseEntity.ok(response);
