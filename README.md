@@ -84,8 +84,8 @@ Inicio de sesion con correo y clave, retorna un token JWT firmado.
 ### Admin por defecto
 
 Creado via `data.sql` al arrancar la aplicacion:
-- **Usuario:** `admin`
-- **Clave:** `admin@admin.com`
+- **Usuario:** `admin@admin.com`
+- **Clave:** `admin`
 
 ---
 
