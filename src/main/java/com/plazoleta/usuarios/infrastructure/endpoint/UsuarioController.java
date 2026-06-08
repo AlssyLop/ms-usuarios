@@ -63,9 +63,9 @@ public class UsuarioController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasRole('ADMINISTRADOR')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'PROPIETARIO')")
     @Operation(summary = "Consultar usuario por ID",
-            description = "Retorna los datos basicos de un usuario por su ID. Requiere rol ADMINISTRADOR.")
+            description = "Retorna los datos basicos de un usuario por su ID. Requiere rol ADMINISTRADOR o PROPIETARIO.")
     @ApiResponse(responseCode = "200", description = "Usuario encontrado",
             content = @Content(schema = @Schema(implementation = UsuarioConsultaResponse.class)))
     @ApiResponse(responseCode = "404", description = "Usuario no encontrado")
