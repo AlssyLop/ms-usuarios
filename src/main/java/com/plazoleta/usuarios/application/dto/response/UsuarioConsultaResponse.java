@@ -4,15 +4,17 @@ public class UsuarioConsultaResponse {
     private Long id;
     private String nombre;
     private String apellido;
+    private String celular;
     private String correo;
     private String rol;
 
     public UsuarioConsultaResponse() {}
 
-    public UsuarioConsultaResponse(Long id, String nombre, String apellido, String correo, String rol) {
+    public UsuarioConsultaResponse(Long id, String nombre, String apellido, String celular, String correo, String rol) {
         this.id = id;
         this.nombre = nombre;
         this.apellido = apellido;
+        this.celular = celular;
         this.correo = correo;
         this.rol = rol;
     }
@@ -23,6 +25,8 @@ public class UsuarioConsultaResponse {
     public void setNombre(String nombre) { this.nombre = nombre; }
     public String getApellido() { return apellido; }
     public void setApellido(String apellido) { this.apellido = apellido; }
+    public String getCelular() { return celular; }
+    public void setCelular(String celular) { this.celular = celular; }
     public String getCorreo() { return correo; }
     public void setCorreo(String correo) { this.correo = correo; }
     public String getRol() { return rol; }

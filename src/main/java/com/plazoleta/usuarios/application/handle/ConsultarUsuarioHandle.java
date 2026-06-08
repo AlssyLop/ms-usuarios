@@ -22,6 +22,7 @@ public class ConsultarUsuarioHandle {
                 usuario.getId(),
                 usuario.getNombre().getValor(),
                 usuario.getApellido().getValor(),
+                usuario.getCelular().getValor(),
                 usuario.getCorreo().getValor(),
                 usuario.getRol().name()
         );
