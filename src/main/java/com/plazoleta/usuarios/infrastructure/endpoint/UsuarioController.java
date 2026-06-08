@@ -25,6 +25,7 @@ import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -63,13 +64,21 @@ public class UsuarioController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'PROPIETARIO')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'PROPIETARIO', 'EMPLEADO', 'CLIENTE')")
     @Operation(summary = "Consultar usuario por ID",
-            description = "Retorna los datos basicos de un usuario por su ID. Requiere rol ADMINISTRADOR o PROPIETARIO.")
+            description = "Retorna los datos basicos de un usuario por su ID. ADMINISTRADOR puede consultar cualquiera; otros roles solo su propio ID.")
     @ApiResponse(responseCode = "200", description = "Usuario encontrado",
             content = @Content(schema = @Schema(implementation = UsuarioConsultaResponse.class)))
+    @ApiResponse(responseCode = "403", description = "No autorizado para consultar este usuario")
     @ApiResponse(responseCode = "404", description = "Usuario no encontrado")
-    public ResponseEntity<UsuarioConsultaResponse> consultarUsuario(@PathVariable Long id) {
+    public ResponseEntity<UsuarioConsultaResponse> consultarUsuario(@PathVariable Long id,
+                                                                     Authentication authentication) {
+        Long idUsuarioAutenticado = (Long) authentication.getPrincipal();
+        boolean esAdmin = authentication.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMINISTRADOR"));
+        if (!esAdmin && !idUsuarioAutenticado.equals(id)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
         UsuarioConsultaResponse response = consultarUsuarioHandle.consultarPorId(id);
         return ResponseEntity.ok(response);
     }
