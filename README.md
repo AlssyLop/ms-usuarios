@@ -177,3 +177,36 @@ Endpoint público `POST /usuarios/cliente` (sin autenticación). El cliente se r
 
 - **201**: `{"mensaje": "Cliente creado exitosamente"}`
 - **400**: `{campo: "mensaje de error"}` (primer campo que falla)
+
+---
+
+## Relacion con otros microservicios
+
+```
++------------------+      RSA-4096 RS256 (firma)      +------------------+
+|   ms-usuarios    |  --------------------------------> | ms-restaurantes  |
+|    (emisor JWT)  |  --------------------------------> |   ms-pedidos     |
+|     Puerto 8081  |  --------------------------------> | ms-notificaciones|
++------------------+                                    +------------------+
+         |                                                    ^
+         | RestTemplate (H6)                                  | RestTemplate (H14)
+         v                                                    |
++------------------+      RestTemplate (consulta cliente)     |
+|  ms-restaurantes |  <----------------------------------------+
+|     Puerto 8082  |
++------------------+
+```
+
+| Microservicio | Relacion | Como interactua |
+|---------------|----------|-----------------|
+| **ms-restaurantes** | **Provee empleado** | `ms-usuarios` crea el empleado y luego llama a `POST /restaurantes/empleados` para asociarlo al restaurante del propietario, forwardeando el JWT. |
+| **ms-pedidos** | **Valida cliente** | `ms-pedidos` consulta `GET /usuarios/{id}` para obtener nombre y celular del cliente al crear un pedido. |
+| **ms-restaurantes** | **Valida propietario** | `ms-restaurantes` consulta `GET /usuarios/{id}` para verificar que el propietario exista y tenga rol `PROPIETARIO`. |
+| **Todos** | **Emisor JWT** | `ms-usuarios` es el unico emisor de tokens JWT (RSA-4096 RS256). Los demas MS solo verifican con la llave publica. |
+
+### Flujo de autenticacion JWT
+
+1. Cliente/Usuario -> `POST /auth/login` en **ms-usuarios**
+2. `ms-usuarios` valida credenciales y genera un JWT firmado con **llave privada RSA-4096**
+3. El cliente usa ese JWT en todas las peticiones a los demas MS via header `Authorization: Bearer <token>`
+4. Cada MS (restaurantes, pedidos, notificaciones) valida el JWT localmente con la **llave publica** sin llamar a ms-usuarios
